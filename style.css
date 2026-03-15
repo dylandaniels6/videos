@@ -285,8 +285,11 @@ footer a:hover { color: var(--text); }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
-  header { padding: 20px 20px 16px; }
-  .intro { padding: 100px 20px 24px; }
+  header {
+    padding: 20px 20px 28px;
+    background: linear-gradient(to bottom, #060606 0%, #060606 72%, transparent 100%);
+  }
+  .intro { padding: 112px 20px 24px; }
   main { padding-left: 1px; padding-right: 1px; }
   .grid { gap: 1px; }
   footer { padding: 24px 20px; }
