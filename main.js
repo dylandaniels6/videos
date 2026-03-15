@@ -6,7 +6,7 @@
 
   const DEFAULT_INTRO = { title: '100 of my favorite videos', description: 'test test test' };
 
-  function getIntro() {
+  function getIntroSync() {
     try {
       const saved = localStorage.getItem(INTRO_KEY);
       if (saved) {
@@ -18,8 +18,7 @@
     return { ...DEFAULT_INTRO };
   }
 
-  function renderIntro() {
-    const intro = getIntro();
+  function renderIntroFrom(intro) {
     const escape = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const nl2br = (s) => escape(s).replace(/\n/g, '<br>');
     introEl.innerHTML = `
@@ -55,7 +54,8 @@
   function getVideos() {
     if (typeof SUPABASE_URL === 'string' && SUPABASE_URL && typeof SUPABASE_ANON_KEY === 'string' && SUPABASE_ANON_KEY) {
       const { createClient } = supabase;
-      return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return client
         .from('videos')
         .select('id, title, description, category, instagram_url, thumbnail')
         .order('sort_order', { ascending: true })
@@ -65,6 +65,23 @@
         });
     }
     return Promise.resolve(getVideosSync());
+  }
+
+  function getIntro() {
+    if (typeof SUPABASE_URL === 'string' && SUPABASE_URL && typeof SUPABASE_ANON_KEY === 'string' && SUPABASE_ANON_KEY) {
+      const { createClient } = supabase;
+      return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        .from('site_intro')
+        .select('title, description')
+        .eq('id', 1)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (!error && data && (data.title != null || data.description != null))
+            return { title: (data.title || '').trim(), description: (data.description || '').trim() };
+          return getIntroSync();
+        });
+    }
+    return Promise.resolve(getIntroSync());
   }
 
   // ── Mobile modal (tap to read description, then watch or close) ───
@@ -156,9 +173,18 @@
 
   // ── Init ─────────────────────────────────────
   setupCardModal();
-  renderIntro();
-  getVideos().then(function (videos) {
-    currentVideos = videos;
-    renderGrid(currentVideos);
-  });
+  const useSupabase = typeof SUPABASE_URL === 'string' && SUPABASE_URL && typeof SUPABASE_ANON_KEY === 'string' && SUPABASE_ANON_KEY;
+  if (useSupabase) {
+    Promise.all([getVideos(), getIntro()]).then(function ([videos, intro]) {
+      currentVideos = videos;
+      renderIntroFrom(intro);
+      renderGrid(currentVideos);
+    });
+  } else {
+    renderIntroFrom(getIntroSync());
+    getVideos().then(function (videos) {
+      currentVideos = videos;
+      renderGrid(currentVideos);
+    });
+  }
 })();

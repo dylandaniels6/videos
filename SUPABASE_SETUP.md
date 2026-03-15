@@ -45,6 +45,12 @@ create policy "Authenticated users can manage videos"
 
 ---
 
+## 2b. Create the `site_intro` table (page headline + description)
+
+So the main page headline and description sync to Supabase and appear on your live site (e.g. Vercel), run the SQL in **supabase/site-intro-table.sql** in the SQL Editor. That creates a single-row table and RLS so everyone can read it and only authenticated users can update it.
+
+---
+
 ## 3. Create the Storage bucket for thumbnails
 
 1. Go to **Storage** in the sidebar and click **New bucket**.

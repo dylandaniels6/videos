@@ -187,6 +187,7 @@
         <button type="button" class="btn btn-ghost" id="logout-btn" style="display: none;">Sign out</button>
         <span class="hint" id="save-status"></span>
       </div>
+      <p class="hint" id="save-hint" style="margin-top: 0; font-size: 10px; color: var(--muted); display: none;">Save updates Supabase so your live site (and Vercel) show the same content. Sign in above if prompted.</p>
     </div>
   </main>
 
@@ -204,7 +205,7 @@
     const CATEGORIES = ['life', 'travel', 'philosophy'];
     const BUCKET = 'thumbnails';
 
-    function getIntro() {
+    function getIntroSync() {
       try {
         const saved = localStorage.getItem(INTRO_KEY);
         if (saved) {
@@ -216,8 +217,8 @@
       return { ...DEFAULT_INTRO };
     }
 
-    function loadIntroForm() {
-      const intro = getIntro();
+    function loadIntroForm(intro) {
+      intro = intro || getIntroSync();
       document.getElementById('intro-title').value = intro.title || '';
       document.getElementById('intro-description').value = intro.description || '';
     }
@@ -385,7 +386,11 @@
       const statusEl = document.getElementById('save-status');
       if (useSupabase && supabaseClient) {
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) { statusEl.textContent = 'Sign in first.'; statusEl.style.color = '#c55'; return; }
+        if (!user) {
+          statusEl.textContent = 'Sign in first (above) so Save updates Supabase and your live site.';
+          statusEl.style.color = '#c55';
+          return;
+        }
         statusEl.textContent = 'Saving…';
         statusEl.style.color = 'var(--muted)';
         try {
@@ -415,8 +420,15 @@
           }));
           const { error } = await supabaseClient.from('videos').upsert(rows, { onConflict: 'id' });
           if (error) throw error;
+          const introTitle = document.getElementById('intro-title').value.trim();
+          const introDesc = document.getElementById('intro-description').value.trim();
+          const { error: introErr } = await supabaseClient.from('site_intro').upsert(
+            { id: 1, title: introTitle, description: introDesc },
+            { onConflict: 'id' }
+          );
+          if (introErr) throw introErr;
           saveIntroToStorage();
-          statusEl.textContent = 'Saved to Supabase. Reload the main site to see changes.';
+          statusEl.textContent = 'Saved to Supabase. Your live site (and Vercel) will show this data after refresh.';
           statusEl.style.color = 'var(--accent)';
         } catch (e) {
           statusEl.textContent = 'Save failed: ' + (e.message || e);
@@ -465,6 +477,7 @@
 
     if (useSupabase && supabaseClient) {
       document.getElementById('data-source').textContent = 'Data: Supabase';
+      document.getElementById('save-hint').style.display = 'block';
       document.getElementById('logout-btn').style.display = 'inline-block';
       document.getElementById('logout-btn').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
@@ -473,11 +486,19 @@
       supabaseClient.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           document.getElementById('login-box').style.display = 'none';
-          supabaseClient.from('videos').select('*').order('sort_order').then(({ data, error }) => {
-            if (!error && data && data.length) currentVideos = data.map(rowToVideo);
-            else currentVideos = (window.VIDEOS || []).map(v => ({ ...v }));
+          Promise.all([
+            supabaseClient.from('videos').select('*').order('sort_order'),
+            supabaseClient.from('site_intro').select('title, description').eq('id', 1).maybeSingle()
+          ]).then(([videosRes, introRes]) => {
+            if (!videosRes.error && videosRes.data && videosRes.data.length)
+              currentVideos = videosRes.data.map(rowToVideo);
+            else
+              currentVideos = (window.VIDEOS || []).map(v => ({ ...v }));
+            const intro = !introRes.error && introRes.data
+              ? { title: introRes.data.title || '', description: introRes.data.description || '' }
+              : null;
             renderForm();
-            loadIntroForm();
+            loadIntroForm(intro);
           });
         } else {
           document.getElementById('login-box').style.display = 'block';
