@@ -11,6 +11,11 @@
   --accent: #b8a96a;
   --font-display: 'Cormorant Garamond', serif;
   --font-mono: 'DM Mono', monospace;
+  /* iOS safe areas (notch, home indicator, Safari bar) — use with viewport-fit=cover */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 html { scroll-behavior: smooth; }
@@ -22,7 +27,10 @@ body {
   font-size: 11px;
   letter-spacing: 0.06em;
   min-height: 100vh;
+  min-height: 100dvh;
   cursor: crosshair;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* grain */
@@ -45,6 +53,7 @@ header {
   align-items: flex-end;
   justify-content: center;
   padding: 32px 48px 24px;
+  padding-top: calc(32px + var(--safe-top));
   background: linear-gradient(to bottom, #060606 55%, transparent);
 }
 
@@ -166,7 +175,11 @@ footer a:hover { color: var(--text); }
 .contact-links a:hover { color: var(--text); }
 
 @media (max-width: 768px) {
-  .page-content { padding: 100px 20px 60px; }
+  .page-content {
+    padding: 100px 20px 60px;
+    padding-top: calc(100px + var(--safe-top));
+    padding-bottom: calc(60px + var(--safe-bottom));
+  }
 }
 
 .grid {
@@ -287,12 +300,17 @@ footer a:hover { color: var(--text); }
 @media (max-width: 768px) {
   header {
     padding: 20px 20px 28px;
+    padding-top: calc(20px + var(--safe-top));
     background: linear-gradient(to bottom, #060606 0%, #060606 72%, transparent 100%);
   }
-  .intro { padding: 112px 20px 24px; }
-  main { padding-left: 1px; padding-right: 1px; }
+  .intro { padding: 112px 20px 24px; padding-top: calc(112px + var(--safe-top)); }
+  main { padding-left: 1px; padding-right: 1px; padding-bottom: var(--safe-bottom); }
   .grid { gap: 1px; }
-  footer { padding: 24px 20px; }
+  footer { padding: 24px 20px; padding-bottom: calc(24px + var(--safe-bottom)); }
+  .admin-page main {
+    padding-top: calc(120px + var(--safe-top));
+    padding-bottom: var(--safe-bottom);
+  }
 
   /* Mobile: no hover overlay on cards — tap opens description modal instead */
   .card .card-overlay,
@@ -308,6 +326,10 @@ footer a:hover { color: var(--text); }
     align-items: center;
     justify-content: center;
     padding: 20px;
+    padding-top: calc(20px + var(--safe-top));
+    padding-bottom: calc(20px + var(--safe-bottom));
+    padding-left: calc(20px + var(--safe-left));
+    padding-right: calc(20px + var(--safe-right));
     visibility: hidden;
     opacity: 0;
     transition: visibility 0.2s, opacity 0.2s;
@@ -318,7 +340,10 @@ footer a:hover { color: var(--text); }
   }
   .card-modal-backdrop {
     position: fixed;
-    inset: 0;
+    top: calc(-1 * var(--safe-top));
+    left: calc(-1 * var(--safe-left));
+    right: calc(-1 * var(--safe-right));
+    bottom: calc(-1 * var(--safe-bottom));
     min-height: 100dvh;
     min-height: 100vh;
     background: rgba(0, 0, 0, 0.85);
@@ -327,16 +352,19 @@ footer a:hover { color: var(--text); }
     position: relative;
     width: 100%;
     max-width: 420px;
-    max-height: 90vh;
+    max-height: calc(90vh - var(--safe-top) - var(--safe-bottom));
+    max-height: calc(90dvh - var(--safe-top) - var(--safe-bottom));
     overflow-y: auto;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 48px 24px 24px;
+    padding-top: calc(48px + var(--safe-top));
+    padding-bottom: calc(24px + var(--safe-bottom));
   }
   .card-modal-close {
     position: absolute;
-    top: 16px;
+    top: calc(16px + var(--safe-top));
     right: 16px;
     width: 36px;
     height: 36px;
