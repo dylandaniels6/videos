@@ -301,22 +301,15 @@ footer a:hover { color: var(--text); }
   header {
     padding: 20px 20px 28px;
     padding-top: calc(20px + var(--safe-top));
-    background: linear-gradient(to bottom, #060606 0%, #060606 72%, transparent 100%);
-  }
-  header::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    height: 100vh;
     background: #060606;
-    pointer-events: none;
+    background: linear-gradient(to bottom, #060606 0%, #060606 72%, transparent 100%);
+    box-shadow: inset 0 120vh 0 0 #060606;
   }
   .intro { padding: 112px 20px 24px; padding-top: calc(112px + var(--safe-top)); }
   main { padding-left: 1px; padding-right: 1px; padding-bottom: var(--safe-bottom); }
   .grid { gap: 1px; }
   footer { padding: 24px 20px; padding-bottom: calc(24px + var(--safe-bottom)); }
+  footer::after { content: ' · v3'; }
   .admin-page main {
     padding-top: calc(120px + var(--safe-top));
     padding-bottom: var(--safe-bottom);
@@ -357,7 +350,9 @@ footer a:hover { color: var(--text); }
     margin-left: -150vmax;
     margin-top: -150vmax;
     background: rgba(0, 0, 0, 0.85);
+    z-index: 1;
   }
+  .card-modal-panel { z-index: 2; }
   .card-modal-panel {
     position: relative;
     width: 100%;
