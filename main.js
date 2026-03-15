@@ -150,20 +150,49 @@
         </div>
       `;
 
-      a.addEventListener('click', function(e) {
-        if (isMobile()) {
-          e.preventDefault();
-          e.stopPropagation();
-          openCardModal(v, i + 1);
-        }
-      }, false);
+      (function (video, position) {
+        var touchStartX = 0, touchStartY = 0, touchStartTime = 0, didScroll = false;
 
-      a.addEventListener('touchstart', function(e) {
-        if (isMobile()) {
-          e.preventDefault();
-          openCardModal(v, i + 1);
-        }
-      }, { passive: false });
+        a.addEventListener('click', function(e) {
+          if (isMobile()) {
+            e.preventDefault();
+            e.stopPropagation();
+            openCardModal(video, position);
+          }
+        }, false);
+
+        a.addEventListener('touchstart', function(e) {
+          if (!isMobile()) return;
+          var t = e.changedTouches && e.changedTouches[0];
+          if (t) {
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
+            didScroll = false;
+          }
+        }, { passive: true });
+
+        a.addEventListener('touchmove', function(e) {
+          if (!isMobile()) return;
+          var t = e.changedTouches && e.changedTouches[0];
+          if (t && (Math.abs(t.clientX - touchStartX) > 10 || Math.abs(t.clientY - touchStartY) > 10))
+            didScroll = true;
+        }, { passive: true });
+
+        a.addEventListener('touchend', function(e) {
+          if (!isMobile()) return;
+          if (didScroll) return;
+          var t = e.changedTouches && e.changedTouches[0];
+          if (!t) return;
+          var move = Math.abs(t.clientX - touchStartX) + Math.abs(t.clientY - touchStartY);
+          var duration = Date.now() - touchStartTime;
+          if (move <= 15 && duration < 500) {
+            e.preventDefault();
+            e.stopPropagation();
+            openCardModal(video, position);
+          }
+        }, { passive: false });
+      })(v, i + 1);
 
       grid.appendChild(a);
     });
