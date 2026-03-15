@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Dylan Work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-page main { padding-top: 120px; max-width: 900px; padding-left: 48px; padding-right: 48px; }
+    .admin-page .admin-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; flex-wrap: wrap; }
+    .admin-page .admin-toolbar a { font-size: 11px; letter-spacing: 0.12em; color: var(--muted); text-decoration: none; }
+    .admin-page .admin-toolbar a:hover { color: var(--accent); }
+    .admin-page .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 36px 100px 1fr 1fr;
+      gap: 16px 24px;
+      align-items: start;
+    }
+    .admin-page .video-card .thumb-cell { grid-row: span 5; }
+    .admin-page .video-card .thumb-wrap {
+      aspect-ratio: 4/5;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .admin-page .video-card .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .admin-page .video-card .thumb-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    .admin-page .video-card .thumb-actions label { margin: 0; }
+    .admin-page .video-card .thumb-actions input[type="file"] { width: 0; height: 0; opacity: 0; position: absolute; }
+    .admin-page .video-card .thumb-actions .upload-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+    .admin-page .video-card .thumb-actions .upload-btn:hover { color: var(--text); border-color: var(--text); }
+    .admin-page .video-card label { display: block; font-size: 9px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+    .admin-page .video-card input[type="text"],
+    .admin-page .video-card select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 10px 12px;
+      border-radius: 2px;
+    }
+    .admin-page .video-card input:focus, .admin-page .video-card select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .admin-page .video-card .id-badge {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      padding: 10px 0;
+    }
+    .admin-page .btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      border-radius: 2px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .admin-page .btn-primary { background: var(--accent); color: var(--bg); }
+    .admin-page .btn-primary:hover { filter: brightness(1.1); }
+    .admin-page .btn-secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .admin-page .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+    .admin-page .btn-ghost { background: none; color: var(--muted); }
+    .admin-page .btn-ghost:hover { color: var(--text); }
+    .admin-page .save-row { margin-top: 24px; margin-bottom: 48px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .admin-page .save-row .hint { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+    .admin-page .login-box { max-width: 320px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 24px; }
+    .admin-page .login-box input { width: 100%; margin-bottom: 12px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 11px; }
+    .admin-page .login-error { color: #c55; font-size: 11px; margin-top: 8px; }
+    .admin-page .video-card .drag-handle {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: grab;
+      color: var(--muted);
+      padding-right: 14px;
+      border-right: 1px solid var(--border);
+      margin-right: 4px;
+      font-size: 11px;
+    }
+    .admin-page .video-card .drag-handle .drag-order { color: var(--accent); font-weight: 600; font-size: 12px; }
+    .admin-page .video-card .drag-handle .grip { font-size: 11px; opacity: 0.6; letter-spacing: 1px; }
+    .admin-page .video-card .drag-handle:active { cursor: grabbing; }
+    .admin-page .video-card.drag-over { border-color: var(--accent); background: rgba(184, 169, 106, 0.06); }
+    .admin-page .video-card .field-title { grid-column: 3; }
+    .admin-page .video-card .field-category { grid-column: 4; }
+    .admin-page .video-card .field-description { grid-column: 3 / -1; min-height: 0; }
+    .admin-page .video-card .field-description textarea { min-height: 200px; width: 100%; }
+    .admin-page .video-card .field-instagram { grid-column: 3 / -1; }
+    .admin-page .video-card .field-delete { grid-column: 3 / -1; }
+    .admin-page .video-card .delete-video { color: #a55; }
+    .admin-page .video-card .delete-video:hover { color: #c66; }
+    @media (max-width: 640px) {
+      .admin-page .video-card { grid-template-columns: 1fr; }
+      .admin-page .video-card .thumb-cell { grid-row: auto; }
+      .admin-page .video-card .field-title,
+      .admin-page .video-card .field-category,
+      .admin-page .video-card .field-description,
+      .admin-page .video-card .field-instagram,
+      .admin-page .video-card .field-delete { grid-column: 1; }
+    }
+  </style>
+</head>
+<body class="admin-page">
+
+  <header>
+    <nav>
+      <a href="index.html">Library</a>
+      <a href="writing.html">Writing</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="admin-toolbar">
+      <a href="index.html">← Back to site</a>
+      <span class="hint" id="data-source"></span>
+    </div>
+
+    <div id="login-box" class="login-box" style="display: none;">
+      <p style="margin-bottom: 12px; font-size: 11px; color: var(--muted);">Sign in to edit videos (Supabase)</p>
+      <input type="email" id="login-email" placeholder="Email" />
+      <input type="password" id="login-password" placeholder="Password" />
+      <button type="button" class="btn btn-primary" id="login-btn">Sign in</button>
+      <p id="login-error" class="login-error" style="display: none;"></p>
+    </div>
+
+    <div id="editor-wrap">
+      <section class="admin-section" style="margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border);">
+        <h2 style="font-family: var(--font-display); font-weight: 300; font-size: 18px; letter-spacing: 0.08em; margin-bottom: 16px;">Page opener</h2>
+        <p class="hint" style="font-size: 11px; color: var(--muted); margin-bottom: 12px;">Headline and description shown at the top of the main page.</p>
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-size: 9px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">Headline</label>
+          <input type="text" id="intro-title" style="width: 100%; max-width: 480px; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 12px; padding: 10px 12px; border-radius: 2px;" placeholder="100 of my favorite videos" />
+        </div>
+        <div>
+          <label style="display:block; font-size: 9px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase;">Description</label>
+          <textarea id="intro-description" rows="3" style="width: 100%; max-width: 480px; resize: vertical; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 11px; padding: 10px 12px; border-radius: 2px;" placeholder="test test test"></textarea>
+        </div>
+      </section>
+
+      <h1 style="font-family: var(--font-display); font-weight: 300; font-size: 24px; letter-spacing: 0.08em; margin-bottom: 8px;">Edit videos</h1>
+      <p class="hint" style="font-size: 11px; color: var(--muted); margin-bottom: 16px;">Change titles (hover text), categories, links, and thumbnails.</p>
+      <button type="button" class="btn btn-secondary" id="add-video-btn" style="margin-bottom: 24px;">Add video</button>
+
+      <div id="admin-form"></div>
+
+      <div class="save-row">
+        <button type="button" class="btn btn-primary" id="save-btn">Save all changes</button>
+        <button type="button" class="btn btn-secondary" id="reset-btn">Reset to default (clear saved data)</button>
+        <button type="button" class="btn btn-ghost" id="logout-btn" style="display: none;">Sign out</button>
+        <span class="hint" id="save-status"></span>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <a href="https://instagram.com/dylandaniels6" target="_blank" rel="noopener">@dylandaniels6</a>
+  </footer>
+
+  <script src="videos.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const STORAGE_KEY = 'dylan-videos-data';
+    const INTRO_KEY = 'dylan-site-intro';
+    const DEFAULT_INTRO = { title: '100 of my favorite videos', description: 'test test test' };
+    const CATEGORIES = ['life', 'travel', 'philosophy'];
+    const BUCKET = 'thumbnails';
+
+    function getIntro() {
+      try {
+        const saved = localStorage.getItem(INTRO_KEY);
+        if (saved) {
+          const o = JSON.parse(saved);
+          if (o && (o.title != null || o.description != null))
+            return { title: o.title != null ? o.title : '', description: o.description != null ? o.description : '' };
+        }
+      } catch (_) {}
+      return { ...DEFAULT_INTRO };
+    }
+
+    function loadIntroForm() {
+      const intro = getIntro();
+      document.getElementById('intro-title').value = intro.title || '';
+      document.getElementById('intro-description').value = intro.description || '';
+    }
+
+    function saveIntroToStorage() {
+      const title = document.getElementById('intro-title').value.trim();
+      const description = document.getElementById('intro-description').value.trim();
+      localStorage.setItem(INTRO_KEY, JSON.stringify({ title, description }));
+    }
+
+    const useSupabase = typeof SUPABASE_URL === 'string' && SUPABASE_URL && typeof SUPABASE_ANON_KEY === 'string' && SUPABASE_ANON_KEY;
+    let supabaseClient = null;
+    if (useSupabase) {
+      const { createClient } = supabase;
+      supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    function getVideosSync() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const { videos } = JSON.parse(saved);
+          if (Array.isArray(videos) && videos.length) return JSON.parse(JSON.stringify(videos));
+        }
+      } catch (_) {}
+      return (window.VIDEOS || []).map(v => ({ ...v }));
+    }
+
+    function rowToVideo(row) {
+      return {
+        id: row.id,
+        title: row.title || '',
+        description: row.description || '',
+        category: row.category || 'life',
+        instagramUrl: row.instagram_url || '',
+        thumbnail: row.thumbnail || ''
+      };
+    }
+
+    let currentVideos = getVideosSync();
+    const thumbData = {}; // id -> File or data URL for newly selected files
+
+    function renderForm() {
+      const container = document.getElementById('admin-form');
+      container.innerHTML = currentVideos.map((v, i) => {
+        const thumbSrc = thumbData[v.id] || v.thumbnail || '';
+        const isDataUrl = thumbSrc.startsWith('data:');
+        return `
+          <div class="video-card" data-id="${v.id}" data-index="${i}">
+            <div class="drag-handle" draggable="true" title="Drag to reorder" aria-label="Reorder"><span class="drag-order">${String(i + 1).padStart(2, '0')}</span><span class="grip">⋮⋮</span></div>
+            <div class="thumb-cell">
+              <div class="thumb-wrap">
+                <img src="${thumbSrc}" alt="" data-id="${v.id}" onerror="this.src='data:image/svg+xml,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"125\" viewBox=\"0 0 100 125\"><rect fill=\"#0e0e0e\" width=\"100\" height=\"125\"/><text x=\"50\" y=\"62\" fill=\"#444\" font-size=\"10\" text-anchor=\"middle\">No image</text></svg>')}'" />
+              </div>
+              <div class="thumb-actions">
+                <label class="upload-btn"><input type="file" accept="image/*" data-id="${v.id}" /> Upload</label>
+              </div>
+            </div>
+            <div class="field-title">
+              <label>Title (hover text)</label>
+              <input type="text" name="title" value="${escapeAttr(v.title)}" data-id="${v.id}" />
+            </div>
+            <div class="field-category">
+              <label>Category</label>
+              <select name="category" data-id="${v.id}">
+                ${CATEGORIES.map(c => `<option value="${c}" ${v.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field-description">
+              <label>Description (extra hover text)</label>
+              <textarea name="description" data-id="${v.id}" rows="10" style="width:100%;resize:vertical;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:10px 12px;border-radius:2px;">${escapeAttr(v.description)}</textarea>
+            </div>
+            <div class="field-instagram">
+              <label>Instagram URL</label>
+              <input type="text" name="instagramUrl" value="${escapeAttr(v.instagramUrl)}" data-id="${v.id}" />
+            </div>
+            <div class="field-delete">
+              <button type="button" class="btn btn-ghost delete-video" data-id="${v.id}">Delete video</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function() {
+          const id = this.dataset.id;
+          const file = this.files[0];
+          if (!file) return;
+          const img = container.querySelector(`.thumb-wrap img[data-id="${id}"]`);
+          if (useSupabase) {
+            thumbData[id] = file;
+            if (img) img.src = URL.createObjectURL(file);
+          } else {
+            const r = new FileReader();
+            r.onload = () => {
+              thumbData[id] = r.result;
+              if (img) img.src = r.result;
+            };
+            r.readAsDataURL(file);
+          }
+        });
+      });
+
+      container.querySelectorAll('.delete-video').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.dataset.id;
+          if (!confirm('Delete this video? You can add it again later.')) return;
+          const idx = currentVideos.findIndex(v => v.id === id);
+          if (idx !== -1) currentVideos.splice(idx, 1);
+          delete thumbData[id];
+          renderForm();
+          document.getElementById('save-status').textContent = 'Video removed. Click Save to keep changes.';
+        });
+      });
+
+      container.querySelectorAll('input[name="title"], input[name="instagramUrl"], select[name="category"], textarea[name="description"]').forEach(el => {
+        const sync = function() {
+          const id = this.dataset.id;
+          const v = currentVideos.find(x => x.id === id);
+          if (!v) return;
+          if (this.name === 'title') v.title = this.value;
+          else if (this.name === 'description') v.description = this.value;
+          else if (this.name === 'instagramUrl') v.instagramUrl = this.value;
+          else if (this.name === 'category') v.category = this.value;
+        };
+        el.addEventListener('input', sync);
+        el.addEventListener('change', sync);
+      });
+
+      // Drag and drop reorder
+      container.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drag-over'); });
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          const toIndex = parseInt(card.dataset.index, 10);
+          if (fromIndex === toIndex || isNaN(fromIndex) || isNaN(toIndex)) return;
+          const [item] = currentVideos.splice(fromIndex, 1);
+          currentVideos.splice(toIndex, 0, item);
+          renderForm();
+        });
+      });
+      container.querySelectorAll('.drag-handle').forEach(handle => {
+        handle.addEventListener('dragstart', (e) => {
+          const card = handle.closest('.video-card');
+          if (card) e.dataTransfer.setData('text/plain', card.dataset.index);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+      });
+    }
+
+    function escapeAttr(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      const defaults = window.VIDEOS || [];
+      const statusEl = document.getElementById('save-status');
+      if (useSupabase && supabaseClient) {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) { statusEl.textContent = 'Sign in first.'; statusEl.style.color = '#c55'; return; }
+        statusEl.textContent = 'Saving…';
+        statusEl.style.color = 'var(--muted)';
+        try {
+          for (const v of currentVideos) {
+            if (thumbData[v.id] !== undefined) {
+              if (thumbData[v.id] === null)
+                v.thumbnail = (defaults.find(d => d.id === v.id) || {}).thumbnail || v.thumbnail || '';
+              else if (thumbData[v.id] instanceof File) {
+                const ext = (thumbData[v.id].name.match(/\.(jpe?g|png|webp)/i) || ['', 'jpg'])[1] || 'jpg';
+                const path = v.id + '.' + ext;
+                const { error: upErr } = await supabaseClient.storage.from(BUCKET).upload(path, thumbData[v.id], { upsert: true });
+                if (upErr) throw upErr;
+                const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(path);
+                v.thumbnail = urlData.publicUrl;
+              } else
+                v.thumbnail = thumbData[v.id];
+            }
+          }
+          const rows = currentVideos.map((v, i) => ({
+            id: v.id,
+            title: v.title,
+            description: v.description || '',
+            category: v.category,
+            instagram_url: v.instagramUrl,
+            thumbnail: v.thumbnail,
+            sort_order: i
+          }));
+          const { error } = await supabaseClient.from('videos').upsert(rows, { onConflict: 'id' });
+          if (error) throw error;
+          saveIntroToStorage();
+          statusEl.textContent = 'Saved to Supabase. Reload the main site to see changes.';
+          statusEl.style.color = 'var(--accent)';
+        } catch (e) {
+          statusEl.textContent = 'Save failed: ' + (e.message || e);
+          statusEl.style.color = '#c55';
+        }
+        return;
+      }
+      currentVideos.forEach(v => {
+        if (thumbData[v.id] !== undefined)
+          v.thumbnail = thumbData[v.id] === null ? (defaults.find(d => d.id === v.id) || {}).thumbnail || v.thumbnail : thumbData[v.id];
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ videos: currentVideos, updatedAt: new Date().toISOString() }));
+        saveIntroToStorage();
+        statusEl.textContent = 'Saved. Reload the main site to see changes.';
+        statusEl.style.color = 'var(--accent)';
+      } catch (e) {
+        statusEl.textContent = 'Save failed (e.g. quota). Try clearing some thumbnails.';
+        statusEl.style.color = '#c55';
+      }
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      if (!confirm('Reset list to default from code? ' + (useSupabase ? 'You can then Save to push to Supabase.' : 'This clears saved data.'))) return;
+      localStorage.removeItem(STORAGE_KEY);
+      currentVideos = (window.VIDEOS || []).map(v => ({ ...v }));
+      for (const k of Object.keys(thumbData)) delete thumbData[k];
+      renderForm();
+      document.getElementById('save-status').textContent = 'Reset. ' + (useSupabase ? 'Click Save to update Supabase.' : 'Reload the main site.');
+    });
+
+    document.getElementById('add-video-btn').addEventListener('click', () => {
+      const maxId = currentVideos.reduce((m, v) => Math.max(m, parseInt(v.id, 10) || 0), 0);
+      const newId = String(maxId + 1).padStart(2, '0');
+      currentVideos.push({
+        id: newId,
+        title: 'New video',
+        description: '',
+        category: 'life',
+        instagramUrl: '',
+        thumbnail: ''
+      });
+      renderForm();
+      document.getElementById('save-status').textContent = 'Video added. Click Save to keep changes.';
+    });
+
+    if (useSupabase && supabaseClient) {
+      document.getElementById('data-source').textContent = 'Data: Supabase';
+      document.getElementById('logout-btn').style.display = 'inline-block';
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        location.reload();
+      });
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          document.getElementById('login-box').style.display = 'none';
+          supabaseClient.from('videos').select('*').order('sort_order').then(({ data, error }) => {
+            if (!error && data && data.length) currentVideos = data.map(rowToVideo);
+            else currentVideos = (window.VIDEOS || []).map(v => ({ ...v }));
+            renderForm();
+            loadIntroForm();
+          });
+        } else {
+          document.getElementById('login-box').style.display = 'block';
+          document.getElementById('editor-wrap').style.display = 'none';
+          document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+            if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+            location.reload();
+          });
+        }
+      });
+    } else {
+      document.getElementById('data-source').textContent = 'Data: this browser (localStorage)';
+      renderForm();
+      loadIntroForm();
+    }
+  </script>
+</body>
+</html>

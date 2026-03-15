@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dylan — Work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="index.html" class="active">Library</a>
+      <a href="writing.html">Writing</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="intro" id="intro"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <footer>
+    <a href="https://instagram.com/dylandaniels6" target="_blank" rel="noopener">@dylandaniels6</a>
+  </footer>
+
+  <div class="card-modal" id="card-modal" aria-hidden="true">
+    <div class="card-modal-backdrop"></div>
+    <div class="card-modal-panel">
+      <button type="button" class="card-modal-close" aria-label="Close">&times;</button>
+      <div class="card-modal-number" id="card-modal-number"></div>
+      <h2 class="card-modal-title" id="card-modal-title"></h2>
+      <div class="card-modal-description" id="card-modal-description"></div>
+      <a class="card-modal-watch" id="card-modal-watch" href="#" target="_blank" rel="noopener noreferrer">Watch video</a>
+    </div>
+  </div>
+
+  <script src="videos.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>
